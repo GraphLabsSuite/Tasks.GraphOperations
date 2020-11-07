@@ -1,0 +1,25 @@
+.Mark {
+  font-size: x-large;
+  height: 100%;
+  display: inline-block;
+}
+
+.MarkNegative {
+  @extend .Mark;
+  color: red;
+}
+
+.MarkPositive {
+  @extend .Mark;
+  color: green;
+}
+
+.MarkNeutral {
+  @extend .Mark;
+  color: orange;
+}
+
+.StudentMark {
+  height: 100%;
+  display: inline-block;
+}
