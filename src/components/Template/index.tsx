@@ -90,8 +90,9 @@ export class Template extends Component<{}, State> {
         }
     }
 
+
     protected ChooseTask(){
-        this.num_0 = 3;//Math.round(Math.random() * 100)%4;
+        this.num_0 = Math.round(Math.random() * 100)%7;
         switch (this.num_0) {
             case 0:
                 this.message_0 = "Постройте граф, являющийся результатом объединения двух графов.";
@@ -105,6 +106,18 @@ export class Template extends Component<{}, State> {
             case 3:
                 this.message_0 = "Постройте граф, являющийся результатом композиции двух графов.";
                 return this.Composition(graphModel1,graphModel2);
+            case 4:
+                this.message_0 = "Постройте граф, являющийся результатом объединения по Зыкову двух графов."; // Объединение по Зыкову
+                return this.Uni_Z(graphModel1,graphModel2);
+            case 5:
+                this.message_0 = "Постройте граф, являющийся результатом пересечения двух графов."; // Пересечение
+                return this.Cross(graphModel1,graphModel2);
+            case 6:
+                this.message_0 = "Постройте граф, являющийся дополнением графа."; // Дополнение
+                return this.Addition(graphModel1);
+            case 7:
+                this.message_0 = "Постройте граф, являющийся результатом декартового произведения двух графов."; // Декартово произведение
+                return this.Cartesian_Product(graphModel1,graphModel2);
             default:
                 this.message_0 = "Постройте граф, являющийся результатом объединения двух графов.";
                 return this.Uni(graphModel1,graphModel2);
@@ -179,6 +192,36 @@ export class Template extends Component<{}, State> {
         graph2.edges.forEach((e:any)=>{
             graphres.addEdge(e);
         });
+        graph1.edges.forEach((e: any)=> {
+            let vv1 = graphres.getVertex(`${e.vertexOne.name}`)[0];
+            let vv2 = graphres.getVertex(`${e.vertexTwo.name}`)[0];
+
+            let e_new: IEdge;
+            e_new = new Edge(vv1,vv2);
+            graphres.addEdge(e_new);
+        });
+        graph2.edges.forEach((e: any)=> {
+            let vv1 = graphres.getVertex(`${e.vertexOne.name}`)[0];
+            let vv2 = graphres.getVertex(`${e.vertexTwo.name}`)[0];
+
+            let e_new: IEdge;
+            e_new = new Edge(vv1,vv2);
+            graphres.addEdge(e_new);
+        });
+        /*graph1.vertices.forEach((v1: any)=> {
+            graph2.vertices.forEach((v2: any)=> {
+                if (!(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
+                    if (!(graph1.getVertex(v2.name).length>0 && graph2.getVertex(v1.name).length>0)){
+                        let vv1 = graphres.getVertex(`${v1.name}`)[0];
+                        let vv2 = graphres.getVertex(`${v2.name}`)[0];
+
+                        let e: IEdge;
+                        e = new Edge(vv1,vv2);
+                        graphres.addEdge(e);
+                    }
+                }
+            });
+        });*/
         return graphres;
     }
 
@@ -280,6 +323,150 @@ export class Template extends Component<{}, State> {
     }
 
     protected Composition(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // Композиция !!!!! без пересечения вершин !!!!!
+        let graphres: IGraph<IVertex, IEdge>;
+        graphres = GraphGenerator.generate(0);
+
+        graph1.vertices.forEach(v=>{
+            graph2.vertices.forEach(v1=>{
+                let v_res: IVertex;
+                v_res = new Vertex(`${v.name}${v1.name}`); // ???????????????
+                graphres.addVertex(v_res);
+                //v_res = new Vertex(`${v.name},${v1.name}`,graphres); // ???????????????
+                //graphres.addVertex(v_res);
+
+            });
+        });
+
+        graph1.vertices.forEach(v1=>{
+            graph2.vertices.forEach(v2=>{
+                graph1.vertices.forEach(u1=>{
+                    graph2.vertices.forEach(u2=>{
+                        if(u1.name!=v1.name || u2.name!=v2.name){
+                            let e_0: IEdge;
+                            e_0=new Edge(v1,v2)
+                            if((u1.name===v1.name) && v2.isAdjacent(graph2,u2)){//graph2.getEdge(v2,u2).length>0 ){
+                                let vv1 = graphres.getVertex(`${v1.name}${v2.name}`);
+                                let vv2 = graphres.getVertex(`${u1.name}${u2.name}`);
+
+                                let e: IEdge;
+                                e = new Edge(vv1[0],vv2[0]);
+                                graphres.addEdge(e);
+                            }
+
+                            else if(v1.isAdjacent(graph1,u1)){
+                                let vv1 = graphres.getVertex(`${v1.name}${v2.name}`);
+                                let vv2 = graphres.getVertex(`${u1.name}${u2.name}`);
+
+                                let e: IEdge;
+                                e = new Edge(vv1[0],vv2[0]);
+                                graphres.addEdge(e);
+                            }
+                        }
+
+                    });
+                });
+            });
+        });
+
+        return graphres;
+    }
+
+    protected Uni_Z(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // объединение по Зыкову
+        let graphres: IGraph<IVertex, IEdge>;
+        graphres = GraphGenerator.generate(0);
+        graph1.vertices.forEach((v:any)=>{
+            graphres.addVertex(v);
+        });
+        graph1.edges.forEach((e:any)=>{
+            graphres.addEdge(e);
+        });
+        graph2.vertices.forEach((v: any)=>{
+            if(!(graphres.getVertex(`${v.name}`).length>0)){ // если нет таких же по имени вершин
+                graphres.addVertex(v);
+            }
+        });
+        graph2.edges.forEach((e:any)=>{
+            graphres.addEdge(e);
+        });
+        graph1.vertices.forEach((v1: any)=> {
+            graph2.vertices.forEach((v2: any)=> {
+                if (!(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
+                    let vv1 = graphres.getVertex(`${v1.name}`)[0];
+                    let vv2 = graphres.getVertex(`${v2.name}`)[0];
+
+                    let e: IEdge;
+                    e = new Edge(vv1,vv2);
+                    graphres.addEdge(e);
+                }
+            });
+        });
+        return graphres;
+    }
+
+    protected Cross(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // Пересечение
+        let graphres: IGraph<IVertex, IEdge>;
+        graphres = GraphGenerator.generate(0);
+
+        graph1.vertices.forEach(v1=>{
+            graph2.vertices.forEach(v2=>{
+                if (v1.name == v2.name){
+                    let v_res: IVertex;
+                    v_res = new Vertex(`${v1.name}`);
+                    graphres.addVertex(v_res);
+                }
+            });
+        });
+
+        graph1.edges.forEach(u1=>{
+            graph2.edges.forEach(u2=>{
+                if ((u1.vertexOne.name == u2.vertexOne.name && u1.vertexTwo.name == u2.vertexTwo.name) || (u1.vertexOne.name == u2.vertexTwo.name && u1.vertexTwo.name == u2.vertexOne.name)){
+                    let v1 = graphres.getVertex(`${u1.vertexOne.name}`);
+                    let v2 = graphres.getVertex(`${u1.vertexTwo.name}`);
+
+                    let e: IEdge;
+                    e = new Edge(v1[0],v2[0]);
+                    graphres.addEdge(e);
+                }
+            });
+        });
+
+        return graphres;
+    }
+
+    protected Addition(graph1: IGraph<IVertex, IEdge>){ // Дополнение
+        let graphres: IGraph<IVertex, IEdge>;
+        graphres = GraphGenerator.generate(0);
+
+        graph1.vertices.forEach(v1=>{
+            let v_res: IVertex;
+            v_res = new Vertex(`${v1.name}`);
+            graphres.addVertex(v_res);
+        });
+
+        graph1.vertices.forEach(v1=>{
+            graph1.vertices.forEach(v2=>{
+                let vv1 = v1.name;
+                let vv2 = v2.name;
+                if (v1.name != v2.name && !(v1.isAdjacent(graph1,v2)) && !(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
+                    let v1 = graphres.getVertex(`${vv1}`);
+                    let v2 = graphres.getVertex(`${vv2}`);
+
+                    let e: IEdge;
+                    e = new Edge(v1[0],v2[0]);
+                    graphres.addEdge(e);
+                }
+            });
+        });
+
+        let graph2: IGraph<IVertex, IEdge>;
+        graph2 = this.GetNewRandomGraph(0);
+        init2(graph2);
+
+
+        return graphres;
+    }
+
+    protected Cartesian_Product(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // Декартово произведение !!!!! без пересечения вершин !!!!!
         let graphres: IGraph<IVertex, IEdge>;
         graphres = GraphGenerator.generate(0);
 
@@ -434,7 +621,7 @@ export class Template extends Component<{}, State> {
     }
 
     protected getArea(): SFC<{}> {
-       return () => <GraphVisualizer
+       /*return () => <GraphVisualizer
             graph={graphModel}
             adapterType={'writable'}
             namedEdges={true}
@@ -442,8 +629,8 @@ export class Template extends Component<{}, State> {
             withoutDragging={true}
             edgeNaming={false}
             incidentEdges={false}
-        />;
-        /*return () =>
+        />;*/
+        return () =>
             <GraphVisualizer
                 graph={graphModelres}
                 adapterType={'readable'}
@@ -452,7 +639,7 @@ export class Template extends Component<{}, State> {
                 withoutDragging={false}
                 edgeNaming={false}
                 incidentEdges={false}
-            />*/
+            />
     }
 
     protected task(): SFC<{}> {
