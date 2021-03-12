@@ -1,16 +1,22 @@
-import React from 'react';
+import React, {FormEvent} from 'react';
 //import logo from './logo.svg';
 import './App.css';
-//import { IGraphView, ToolButtonList, IMatrixView, INGraphsView, graphActionCreators, State } from "graphlabs.core.template";
-import { GraphVisualizer, Template, Toolbar, store, StudentMark, Console } from "graphlabs.core.template";
+import {
+    ToolButton,
+    ToolButtonList,/* IGraphView, IMatrixView, INGraphsView, State, ToolButton*/
+} from "graphlabs.core.template";
+import { GraphVisualizer, Template, Toolbar, store, StudentMark, Console, graphActionCreators, adapter } from "graphlabs.core.template";
 import {  /*Graph, SccBuilder, Vertex, Edge,*/ IGraph, IVertex, IEdge, GraphGenerator } from "graphlabs.core.graphs";
 import styles from './Template.module.scss';
 import 'graphlabs.core.template/dist/main.css';
+import {WritableAdapter} from "graphlabs.core.visualizer";
 
 import { /*Component,*/ SFC} from 'react';
-import { init1, graphModel1, init2, graphModel2, initres, graphModelres, init, graphModel } from './ForMyGraphModel';
-import { message_0, num_0 } from './ForMeVars';
+import { init1, graphModel1, init2, graphModel2, initres, /*graphModelres,*/ init, graphModel } from './ForMyGraphModel';
+import {message_0, message_0_changing, num_0, num_0_changing, message_1, message_1_changing} from './ForMeVars';
 import { GetNewRandomGraph, GetNewRandomGraphForThatOne, ChooseTask } from './Ops';
+import { CheckingAnswer } from "./CheckAnswer";
+import { GraphsInit } from "./GraphsInit"
 
 class App extends Template {
 
@@ -19,22 +25,7 @@ class App extends Template {
     };
 
     componentWillMount() {
-        let graph: IGraph<IVertex, IEdge>;
-
-        graph = GraphGenerator.generate(0);
-        init(graph);
-
-        let graph1: IGraph<IVertex, IEdge>;
-        graph1 = GetNewRandomGraph(5);
-        init1(graph1);
-
-        let graph2: IGraph<IVertex, IEdge>;
-        graph2 = GetNewRandomGraphForThatOne(5,graph1);
-        init2(graph2);
-
-        let graphres = ChooseTask();
-        initres(graphres);
-        //this.scc_count = SccBuilder.findComponents(graphres).length;
+        GraphsInit();
     }
 
     /*public constructor(props: {}) { // не совсем понимаю, почему овервайт этих функций происходит автоматически и без конструктора
@@ -43,17 +34,9 @@ class App extends Template {
         this.getArea = this.getArea.bind(this);
         this.task = this.task.bind(this);
         this.getTaskToolbar = this.getTaskToolbar.bind(this);
-
-        store.subscribe(() => {
-            if (store.getState().app.status !== this.state.status) {
-                this.setState({
-                    status: store.getState().app.status,
-                });
-            }
-        });
     }*/
 
-    public render():JSX.Element {
+    /*public render():JSX.Element {
         const Task: any = this.task();
         const Toolbar = this.getTaskToolbar();
         const Area = this.getArea51();
@@ -84,13 +67,70 @@ class App extends Template {
                         </div>)}
             </div>
         );
-    }//<Task/>
+    }*/
+
+
+
+    // 1) разобраться со store, dispatch и др
+
 
     protected getTaskToolbar() {
+        //super.getTaskToolbar()
+
+        Toolbar.prototype.getButtonList = () => {
+            function beforeComplete(this: App):  Promise<{ success: boolean; fee: number }> {
+                return new Promise((resolve => {
+                    resolve(CheckingAnswer());
+                }));
+            }
+            ToolButtonList.prototype.beforeComplete = beforeComplete.bind(this);
+            ToolButtonList.prototype.help = () => `В данном задании вы должны построить результат операции, указанной в задании в правой части экрана. Для этого вы можете добавлять любое число вершин/рёбер. Также вы можете удалять любое число вершин, не инцидентных ни одному ребру или рёбер. Оценка зависит только от того, правильно ли вы построите граф.`;
+
+            ToolButtonList.prototype.toolButtons = {
+                "http://gl-backend.svtz.ru:5000/odata/downloadImage(name='add_vertex.png')": () => {
+                    adapter.addVertex();
+                },
+                "http://gl-backend.svtz.ru:5000/odata/downloadImage(name='add_edge.png')": () => { //  Меняю имя всем рёбрам на адекватные - ужасный костыль
+                    adapter.addEdge();
+                    graphModel.edges.forEach((e:IEdge, i=0)=>{e.name = `${i++}`;});
+                },
+                "http://gl-backend.svtz.ru:5000/odata/downloadImage(name='remove_vertex.png')": () => { //  Меняю имя всем рёбрам на адекватные - ужасный костыль
+                    adapter.removeVertex();
+                },
+                "http://gl-backend.svtz.ru:5000/odata/downloadImage(name='remove_edge.png')": () => { //  Меняю имя всем рёбрам на адекватные - ужасный костыль
+                    adapter.removeEdge();
+                }
+            };
+            return ToolButtonList;
+        };
+        Toolbar.prototype.render = () => {
+            const Buttons = Toolbar.prototype.getButtonList();
+            return (
+                <div>
+                    <div>Панель инструментов</div>
+                    <Buttons/>
+                    <button type={"button"} style={{border: '1px double black', background: 'white', margin: '4px'}} onClick={()=>{
+                        num_0_changing(num_0+1);
+                        GraphsInit();
+                        this.forceUpdate();
+                        if (num_0 === 7){  // удалить кнопку было бы хорошо
+                            message_1_changing("Операций больше нет");
+                            this.disable();
+                        }
+                    }}>{message_1}</button>
+                </div>);
+        }
         return Toolbar;
     }
 
-    protected getArea51(): SFC<{}> {
+    protected disable(){
+        let element = document.getElementsByTagName('button')[0];
+        if (element != null) {
+            element.setAttribute('disabled','disabled');
+        }
+    }
+
+    protected getArea(): SFC<{}> {
         return () => <div>
             <p>
                 <GraphVisualizer
@@ -100,7 +140,7 @@ class App extends Template {
                     vertexNaming={true}
                     withoutDragging={true}
                     edgeNaming={false}
-                    incidentEdges={true}
+                    incidentEdges={false}
                 />
             </p>
         </div>;
@@ -118,7 +158,6 @@ class App extends Template {
     }
 
     protected task(): SFC<{}> {
-        graphModel.vertices.forEach(v => (console.log(`id = ${v.id}; label = ${v.label}; name = ${v.name}; wawe=${v.wave}.\n`)));
         return () =>
             <div>
                 <p>
@@ -133,10 +172,8 @@ class App extends Template {
                             vertexNaming={false}
                             withoutDragging={true}
                             edgeNaming={false}
-                            incidentEdges={true}
+                            incidentEdges={false}
                         />
-                    </p>
-                    <p>
                         {num_0!==6?"2.":''}<GraphVisualizer
                             graph={graphModel2}
                             adapterType={'readable'}
@@ -144,7 +181,7 @@ class App extends Template {
                             vertexNaming={false}
                             withoutDragging={true}
                             edgeNaming={false}
-                            incidentEdges={true}
+                            incidentEdges={false}
                         />
                     </p>
                 </div>

@@ -5,13 +5,8 @@ import 'graphlabs.core.template/dist/main.css';
 import { /*initres, graphModelres, init, graphModel, init1,*/ graphModel1, init2, graphModel2 } from './ForMyGraphModel';
 import { num_0, num_0_changing, message_0_changing } from './ForMeVars';
 
-
-    //Для меня в будующем: проблема невозможности удать ребро заключается в том, что я создаю два других, тем саммы ломая себе всё.
-    //Это нужно проверить и внести определённые правки. Также нужно узнать как мой модуль добавить на сайт, а не только на гитхаб.
-
-
 function ChooseTask(){
-    num_0_changing(Math.round(Math.random() * 100)%7);
+    //num_0_changing(1);//Math.round(Math.random() * 100)%7);
     switch (num_0) {
         case 0:
             message_0_changing("Постройте граф, являющийся результатом объединения двух графов.");
@@ -42,7 +37,6 @@ function ChooseTask(){
             return Uni(graphModel1,graphModel2);
     }
 }
-
 
 function GetNewRandomGraph (num:number){ // рандомный граф
     let graph: IGraph<IVertex, IEdge>;
