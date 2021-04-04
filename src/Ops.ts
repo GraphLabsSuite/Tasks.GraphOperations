@@ -6,85 +6,35 @@ import { /*initres, graphModelres, init, graphModel, init1,*/ graphModel1, init2
 import { num_0, num_0_changing, message_0_changing } from './ForMeVars';
 
 function ChooseTask(){
-    //num_0_changing(1);//Math.round(Math.random() * 100)%7);
     switch (num_0) {
         case 0:
-            message_0_changing("Постройте граф, являющийся результатом объединения двух графов.");
-            return Uni(graphModel1,graphModel2);
-        case 1:
-            message_0_changing("Постройте граф, являющийся результатом соединения двух графов.");
-            return Joint(graphModel1,graphModel2);
-        case 2:
-            message_0_changing("Постройте граф, являющийся результатом произведения двух графов.");
-            return Product(graphModel1,graphModel2);
-        case 3:
-            message_0_changing("Постройте граф, являющийся результатом композиции двух графов.");
-            return Composition(graphModel1,graphModel2);
-        case 4:
-            message_0_changing("Постройте граф, являющийся результатом объединения по Зыкову двух графов.");// Объединение по Зыкову
-            return Uni_Z(graphModel1,graphModel2);
-        case 5:
-            message_0_changing("Постройте граф, являющийся результатом пересечения двух графов.");// Пересечение
+            message_0_changing("Постройте граф, являющийся результатом пересечения двух графов.");// вершины пересекаются
             return Cross(graphModel1,graphModel2);
-        case 6:
-            message_0_changing("Постройте граф, являющийся дополнением графа."); // Дополнение
+        case 1:
+            message_0_changing("Постройте граф, являющийся дополнением графа."); // один граф
             return Addition(graphModel1);
+        case 2:
+            message_0_changing("Постройте граф, являющийся результатом объединения двух графов."); // вершины пересекаются
+            return Uni(graphModel1,graphModel2);
+        case 3:
+            message_0_changing("Постройте граф, являющийся результатом соединения (по Зыкову) двух графов."); // вершины пока не пересекаются
+            return Uni_Z(graphModel1,graphModel2);
+        case 4:
+            message_0_changing("Постройте граф, являющийся результатом соединения двух графов."); // вершины пока не пересекаются
+            return Joint(graphModel1,graphModel2);
+        case 5:
+            message_0_changing("Постройте граф, являющийся результатом произведения двух графов."); // вершины пока не пересекаются
+            return Product(graphModel1,graphModel2);
+        case 6:
+            message_0_changing("Постройте граф, являющийся результатом композиции двух графов."); // вершины пока не пересекаются
+            return Composition(graphModel1,graphModel2);
         case 7:
-            message_0_changing("Постройте граф, являющийся результатом декартового произведения двух графов.");// Декартово произведение
+            message_0_changing("Постройте граф, являющийся результатом декартового произведения двух графов."); // вершины пока не пересекаются
             return Cartesian_Product(graphModel1,graphModel2);
         default:
             message_0_changing("Постройте граф, являющийся результатом объединения двух графов.");
             return Uni(graphModel1,graphModel2);
     }
-}
-
-function GetNewRandomGraph (num:number){ // рандомный граф
-    let graph: IGraph<IVertex, IEdge>;
-    graph = GraphGenerator.generate(0);
-    var arr = [];
-    for(var i = 0; i<num; i++ ){
-        arr.push(Math.round(Math.random()));
-        if(arr[i]===1){
-            let vert = new Vertex(`${i}`);
-            graph.addVertex(vert);
-        }
-    }
-    for(var k=0;k<num-1;k++){
-        if(arr[k]===1) {
-            for(var j = k+1;j<num;j++){
-                if(arr[j]===1 && Math.random()>0.45 ){ // 55% chance what is edge k+j
-                    let edge = new Edge(graph.getVertex(`${k}`)[0],graph.getVertex(`${j}`)[0],`${k}+${j}`);
-                    graph.addEdge(edge);
-                }
-            }
-        }
-    }
-    return graph;
-}
-
-function GetNewRandomGraphForThatOne (num:number, graph1:IGraph<IVertex, IEdge>){ // рандомный, не имеющий общих вершин с первым
-    let graph: IGraph<IVertex, IEdge>;
-    graph = GraphGenerator.generate(0);
-    var arr = [];
-    let length = graph1.vertices.length+1;
-    for(var i = 0; i<num; i++ ){
-        arr.push(Math.round(Math.random()));
-        if(arr[i]===1){
-            let vert = new Vertex(`${i+length}`);
-            graph.addVertex(vert);
-        }
-    }
-    for(var k=0;k<num-1;k++){
-        if(arr[k]===1) {
-            for(var j = k+1;j<num;j++){
-                if(arr[j]===1 && Math.random()>0.45 ){ // 55% chance what is edge k+j
-                    let edge = new Edge(graph.getVertex(`${k+length}`)[0],graph.getVertex(`${j+length}`)[0],`${k+length}+${j+length}`);
-                    graph.addEdge(edge);
-                }
-            }
-        }
-    }
-    return graph;
 }
 
 function Uni(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // объединение
@@ -329,7 +279,7 @@ function Addition(graph1: IGraph<IVertex, IEdge>){ // Дополнение
     });
 
     let graph2: IGraph<IVertex, IEdge>;
-    graph2 = GetNewRandomGraph(0);
+    graph2 = GraphGenerator.generate(0);
     init2(graph2);
 
 
@@ -385,4 +335,4 @@ function Cartesian_Product(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex
     return graphres;
 }
 
-export { GetNewRandomGraph, GetNewRandomGraphForThatOne, ChooseTask };
+export { ChooseTask };
