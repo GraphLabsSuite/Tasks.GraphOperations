@@ -17,11 +17,11 @@ function ChooseTask(){
             message_0_changing("Постройте граф, являющийся результатом объединения двух графов."); // вершины пересекаются
             return Uni(graphModel1,graphModel2);
         case 3:
-            message_0_changing("Постройте граф, являющийся результатом соединения (по Зыкову) двух графов."); // вершины пока не пересекаются
-            return Uni_Z(graphModel1,graphModel2);
-        case 4:
-            message_0_changing("Постройте граф, являющийся результатом соединения двух графов."); // вершины пока не пересекаются
+            message_0_changing("Постройте граф, являющийся результатом соединения двух графов с неперсекающимися вершинами."); // вершины пока не пересекаются
             return Joint(graphModel1,graphModel2);
+        case 4:
+            message_0_changing("Постройте граф, являющийся результатом соединения двух графов с персекающимися вершинами."); // вершины пересекаются
+            return Joint_Z(graphModel1,graphModel2);
         case 5:
             message_0_changing("Постройте граф, являющийся результатом произведения двух графов."); // вершины пока не пересекаются
             return Product(graphModel1,graphModel2);
@@ -35,6 +35,69 @@ function ChooseTask(){
             message_0_changing("Постройте граф, являющийся результатом объединения двух графов.");
             return Uni(graphModel1,graphModel2);
     }
+}
+
+function Addition(graph1: IGraph<IVertex, IEdge>){ // Дополнение
+    let graphres: IGraph<IVertex, IEdge>;
+    graphres = GraphGenerator.generate(0);
+
+    graph1.vertices.forEach(v1=>{
+        let v_res: IVertex;
+        v_res = new Vertex(`${v1.name}`);
+        graphres.addVertex(v_res);
+    });
+
+    graph1.vertices.forEach(v1=>{
+        graph1.vertices.forEach(v2=>{
+            let vv1 = v1.name;
+            let vv2 = v2.name;
+            if (v1.name !== v2.name && !(v1.isAdjacent(graph1,v2)) && !(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
+                let v1 = graphres.getVertex(`${vv1}`);
+                let v2 = graphres.getVertex(`${vv2}`);
+
+                let e: IEdge;
+                e = new Edge(v1[0],v2[0]);
+                graphres.addEdge(e);
+            }
+        });
+    });
+
+    let graph2: IGraph<IVertex, IEdge>;
+    graph2 = GraphGenerator.generate(0);
+    init2(graph2);
+
+
+    return graphres;
+}
+
+function Cross(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // Пересечение
+    let graphres: IGraph<IVertex, IEdge>;
+    graphres = GraphGenerator.generate(0);
+
+    graph1.vertices.forEach(v1=>{
+        graph2.vertices.forEach(v2=>{
+            if (v1.name === v2.name){
+                let v_res: IVertex;
+                v_res = new Vertex(`${v1.name}`);
+                graphres.addVertex(v_res);
+            }
+        });
+    });
+
+    graph1.edges.forEach(u1=>{
+        graph2.edges.forEach(u2=>{
+            if ((u1.vertexOne.name === u2.vertexOne.name && u1.vertexTwo.name === u2.vertexTwo.name) || (u1.vertexOne.name === u2.vertexTwo.name && u1.vertexTwo.name === u2.vertexOne.name)){
+                let v1 = graphres.getVertex(`${u1.vertexOne.name}`);
+                let v2 = graphres.getVertex(`${u1.vertexTwo.name}`);
+
+                let e: IEdge;
+                e = new Edge(v1[0],v2[0]);
+                graphres.addEdge(e);
+            }
+        });
+    });
+
+    return graphres;
 }
 
 function Uni(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // объединение
@@ -69,6 +132,38 @@ function Uni(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // 
         let e_new: IEdge;
         e_new = new Edge(vv1,vv2);
         graphres.addEdge(e_new);
+    });
+    return graphres;
+}
+
+function Joint_Z(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // объединение с пересекающимися вершинами
+    let graphres: IGraph<IVertex, IEdge>;
+    graphres = GraphGenerator.generate(0);
+    graph1.vertices.forEach((v:any)=>{
+        graphres.addVertex(v);
+    });
+    graph1.edges.forEach((e:any)=>{
+        graphres.addEdge(e);
+    });
+    graph2.vertices.forEach((v: any)=>{
+        if(!(graphres.getVertex(`${v.name}`).length>0)){ // если нет таких же по имени вершин
+            graphres.addVertex(v);
+        }
+    });
+    graph2.edges.forEach((e:any)=>{
+        graphres.addEdge(e);
+    });
+    graph1.vertices.forEach((v1: any)=> {
+        graph2.vertices.forEach((v2: any)=> {
+            if (!(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
+                let vv1 = graphres.getVertex(`${v1.name}`)[0];
+                let vv2 = graphres.getVertex(`${v2.name}`)[0];
+
+                let e: IEdge;
+                e = new Edge(vv1,vv2);
+                graphres.addEdge(e);
+            }
+        });
     });
     return graphres;
 }
@@ -187,101 +282,6 @@ function Composition(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdg
             });
         });
     });
-
-    return graphres;
-}
-
-function Uni_Z(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // объединение по Зыкову
-    let graphres: IGraph<IVertex, IEdge>;
-    graphres = GraphGenerator.generate(0);
-    graph1.vertices.forEach((v:any)=>{
-        graphres.addVertex(v);
-    });
-    graph1.edges.forEach((e:any)=>{
-        graphres.addEdge(e);
-    });
-    graph2.vertices.forEach((v: any)=>{
-        if(!(graphres.getVertex(`${v.name}`).length>0)){ // если нет таких же по имени вершин
-            graphres.addVertex(v);
-        }
-    });
-    graph2.edges.forEach((e:any)=>{
-        graphres.addEdge(e);
-    });
-    graph1.vertices.forEach((v1: any)=> {
-        graph2.vertices.forEach((v2: any)=> {
-            if (!(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
-                let vv1 = graphres.getVertex(`${v1.name}`)[0];
-                let vv2 = graphres.getVertex(`${v2.name}`)[0];
-
-                let e: IEdge;
-                e = new Edge(vv1,vv2);
-                graphres.addEdge(e);
-            }
-        });
-    });
-    return graphres;
-}
-
-function Cross(graph1: IGraph<IVertex, IEdge>,graph2: IGraph<IVertex, IEdge>){ // Пересечение
-    let graphres: IGraph<IVertex, IEdge>;
-    graphres = GraphGenerator.generate(0);
-
-    graph1.vertices.forEach(v1=>{
-        graph2.vertices.forEach(v2=>{
-            if (v1.name === v2.name){
-                let v_res: IVertex;
-                v_res = new Vertex(`${v1.name}`);
-                graphres.addVertex(v_res);
-            }
-        });
-    });
-
-    graph1.edges.forEach(u1=>{
-        graph2.edges.forEach(u2=>{
-            if ((u1.vertexOne.name === u2.vertexOne.name && u1.vertexTwo.name === u2.vertexTwo.name) || (u1.vertexOne.name === u2.vertexTwo.name && u1.vertexTwo.name === u2.vertexOne.name)){
-                let v1 = graphres.getVertex(`${u1.vertexOne.name}`);
-                let v2 = graphres.getVertex(`${u1.vertexTwo.name}`);
-
-                let e: IEdge;
-                e = new Edge(v1[0],v2[0]);
-                graphres.addEdge(e);
-            }
-        });
-    });
-
-    return graphres;
-}
-
-function Addition(graph1: IGraph<IVertex, IEdge>){ // Дополнение
-    let graphres: IGraph<IVertex, IEdge>;
-    graphres = GraphGenerator.generate(0);
-
-    graph1.vertices.forEach(v1=>{
-        let v_res: IVertex;
-        v_res = new Vertex(`${v1.name}`);
-        graphres.addVertex(v_res);
-    });
-
-    graph1.vertices.forEach(v1=>{
-        graph1.vertices.forEach(v2=>{
-            let vv1 = v1.name;
-            let vv2 = v2.name;
-            if (v1.name !== v2.name && !(v1.isAdjacent(graph1,v2)) && !(graphres.getVertex(v1.name)[0].isAdjacent(graphres,graphres.getVertex(v2.name)[0]))){
-                let v1 = graphres.getVertex(`${vv1}`);
-                let v2 = graphres.getVertex(`${vv2}`);
-
-                let e: IEdge;
-                e = new Edge(v1[0],v2[0]);
-                graphres.addEdge(e);
-            }
-        });
-    });
-
-    let graph2: IGraph<IVertex, IEdge>;
-    graph2 = GraphGenerator.generate(0);
-    init2(graph2);
-
 
     return graphres;
 }

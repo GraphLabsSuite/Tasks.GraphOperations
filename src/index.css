@@ -15,3 +15,42 @@ code {
 .TaskCell___13bM1{
   overflow: auto;
 }
+
+.ToolCell___3aOd8{
+  overflow: auto;
+}
+
+.raph-Model-1{
+  width: 100%;
+  height: 100%;
+  margin-top: -20%;
+}
+.raph-Model-2{
+  width: 100%;
+  height: 100%;
+  margin-top: -40%;
+}
+
+.T_s{
+  color: white;
+}
+
+#iframe{
+  position: absolute;
+}
+.help_for_casuals{
+  position: inherit;
+  left: 0%; top: 0%;
+}
+.help_for_casuals:hover::after{
+  content: attr(data-title); /* Выводим текст */
+  position: absolute; /* Абсолютное позиционирование */
+  left: 0%; top: 0%; /* Положение подсказки */
+  z-index: 1; /* Отображаем подсказку поверх других элементов */
+  background: rgba(255,255,230,0.9); /* Полупрозрачный цвет фона */
+  font-family: Arial, sans-serif; /* Гарнитура шрифта */
+  /*font-size: 10px; /* Размер текста подсказки */
+  /*padding: 10%; /* Поля */
+  border: 1px solid #333; /* Параметры рамки */
+  border-radius: 5px;
+}

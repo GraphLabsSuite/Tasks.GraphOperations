@@ -52,12 +52,12 @@ function CheckingAnswer(){// мое добавление для проверки
     }
 
     if(markN===100){
-        window.alert(`Вы верно выполнили задание`);
+        window.alert(`Вы верно выполнили предыдущее задание`);
         mark_0_changing(mark_0+9+k_s[num_0]);
     }
 
     if(markN<100){
-        window.alert(`Вы неверно выполнили задание`);
+        window.alert(`Вы неверно выполнили предыдущее задание`);
     }
 }
 
