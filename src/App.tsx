@@ -20,13 +20,14 @@ import {WritableAdapter} from "graphlabs.core.visualizer";
 import './App.css';
 
 import { /*Component,*/ SFC} from 'react';
-import { init1, graphModel1, init2, graphModel2, initres, /*graphModelres,*/ init, graphModel } from './ForMyGraphModel';
-import {message_0, message_0_changing, num_0, num_0_changing, message_1, message_1_changing, mark_0, mark_0_changing, T_s, T_s_changing, T_s_shawing } from './ForMeVars';
+import { init1, graphModel1, init2, graphModel2, initres, /*graphModelres,*/ init, graphModel, inithelp, graphModelhelp } from './ForMyGraphModel';
+import {message_0, message_0_changing, num_0, num_0_changing, message_1, message_1_changing, mark_0, mark_0_changing, T_s, T_s_changing, T_s_shawing, need_render, need_render_changing } from './ForMeVars';
 import { ChooseTask } from './Ops';
 import { CheckingAnswer, StartDifficult, LastCheckingAnswer } from "./CheckAnswer";
 import { GraphsInit } from "./GraphsInit"
 import ReactDOM from "react-dom";
 import {log} from "util";
+import { MyVisualizer } from "./MyVisualizer";
 
 class App extends Template {
 
@@ -45,6 +46,24 @@ class App extends Template {
         }, 1000);
         window.setTimeout(()=>{clearInterval(timerId);LastCheckingAnswer();},1000*45*60);
     }
+
+    componentDidMount() {
+        let graph = GraphGenerator.generate(0);
+        inithelp(graph);
+        MyVisualizer(graphModel1,"graph-Model-1");
+        MyVisualizer(graphModel2,"graph-Model-2");
+        //this.render();
+        //this.forceUpdate();
+    }
+
+    componentDidUpdate() {
+        if(need_render) {
+            MyVisualizer(graphModel1, "graph-Model-1");
+            MyVisualizer(graphModel2,"graph-Model-2");
+            need_render_changing(false);
+        }
+    }
+
 
     /*public constructor(props: {}) { // не совсем понимаю, почему овервайт этих функций происходит автоматически и без конструктора
         super(props);
@@ -126,8 +145,8 @@ class App extends Template {
                         const start = new Date().getTime();
                         //adapter.addVertex();
                         graphModel.addVertex(new Vertex(`${window.prompt("Добавте вершину, имя вершины должно состоять из последовательности цифр.", '0')}`));
-                        this.render();
                         this.forceUpdate();
+                        need_render_changing(true);
                         const end = new Date().getTime();
                         T_s_changing(T_s - Math.round((end-start)/1000));
                     }}>Добавить<br/>вершину</button>
@@ -156,8 +175,9 @@ class App extends Template {
                             num_0_changing(num_0 + 1);
                             GraphsInit();
                             this.forceUpdate();
+                            need_render_changing(true);
                             if (num_0 === 7) {  // удалить кнопку было бы хорошо
-                                message_1_changing("Завершите выполнение теста.");
+                                message_1_changing("Завершите работу.");
                                 this.disable();
                             }
                         }
@@ -210,28 +230,20 @@ class App extends Template {
                     <img src={"http://gl-backend.svtz.ru:5000/odata/downloadImage(name='Help.png')"}></img>
                 </p>
                 {message_0}
-                <div className={"raph-Model-1"}>
-                    <GraphVisualizer
-                        graph={graphModel1}
-                        adapterType={'readable'}
-                        namedEdges={false}
-                        vertexNaming={false}
-                        withoutDragging={true}
-                        edgeNaming={false}
-                        incidentEdges={false}
-                    />
-                </div>
-                <div className={"raph-Model-2"}>
-                    <GraphVisualizer
-                        graph={graphModel2}
-                        adapterType={'readable'}
-                        namedEdges={false}
-                        vertexNaming={false}
-                        withoutDragging={true}
-                        edgeNaming={false}
-                        incidentEdges={false}
-                    />
-                </div>
+                <svg className={"graph-Model-1"}>
+                </svg>
+                <svg className={"graph-Model-2"}>
+                </svg>
+                <GraphVisualizer
+                    graph={graphModelhelp}
+                    adapterType={'readable'}
+                    namedEdges={false}
+                    vertexNaming={false}
+                    withoutDragging={true}
+                    edgeNaming={false}
+                    incidentEdges={false}
+                />
+
             </div>;
     }
 }

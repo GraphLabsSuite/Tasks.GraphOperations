@@ -18,10 +18,16 @@ init2 = function (graph: IGraph<IVertex, IEdge>) {
     graphModel2 = graph;
 }
 
+let graphModelhelp:  IGraph<IVertex, IEdge> = new Graph() as unknown as IGraph<IVertex, IEdge>;
+let inithelp:(graph: IGraph<IVertex, IEdge>) => void;
+inithelp = function (graph: IGraph<IVertex, IEdge>) {
+    graphModelhelp = graph;
+}
+
 let graphModelres:  IGraph<IVertex, IEdge> = new Graph() as unknown as IGraph<IVertex, IEdge>;
 let initres:(graph: IGraph<IVertex, IEdge>) => void;
 initres = function (graph: IGraph<IVertex, IEdge>) {
     graphModelres = graph;
 }
 
-export { init1, graphModel1, init2, graphModel2, initres, graphModelres, init, graphModel };
+export { init1, graphModel1, init2, graphModel2, initres, graphModelres, init, graphModel, inithelp, graphModelhelp };

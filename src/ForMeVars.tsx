@@ -6,11 +6,13 @@ let num_0 = 0;
 let mark_0 = 0;
 let k_s = [0,0,0,0,0,0,0,0];
 let T_s = 45*60;
+let need_render = false;
 
 function message_0_changing (new_message: string) {message_0 = new_message;}
 function message_1_changing (new_message: string) {message_1 = new_message;}
 function num_0_changing (new_num: number) {num_0 = new_num;}
 function mark_0_changing (new_mark: number) {mark_0 = new_mark;}
+function need_render_changing (new_need_render: boolean) {need_render = new_need_render;}
 function k_s_changing (new_k_s: number[]) {k_s = new_k_s;}
 function T_s_changing (new_T_s: number) {T_s = new_T_s;}
 function T_s_shawing () {
@@ -28,4 +30,4 @@ function T_s_shawing () {
     }
 }
 
-export { num_0, message_0, num_0_changing, message_0_changing, message_1, message_1_changing, mark_0, mark_0_changing, k_s, k_s_changing, T_s, T_s_changing, T_s_shawing };
+export { num_0, message_0, num_0_changing, message_0_changing, message_1, message_1_changing, mark_0, mark_0_changing, k_s, k_s_changing, T_s, T_s_changing, T_s_shawing, need_render, need_render_changing };
